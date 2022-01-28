@@ -2,6 +2,8 @@ import "listUtil"
 
 onMM10 = (version.buildDate.indexOf("2021") == 0)
 
+clear
+
 spr = display(4)
 text.color = color.silver
 text.row = 15
@@ -249,10 +251,12 @@ UI.upBoundary = 600
 UI.downBoundary = 40
 
 UI.drawAndCaptureImages = function()
+	gfx.clear
 	self.drawAndCaputureBullet
 	self.drawAndCaptureLetters
 	self.drawAndCaptureAsteroid
 	self.drawAndCaptureStars
+	gfx.clear
 end function
 
 UI.drawAndCaputureBullet = function()
@@ -306,7 +310,6 @@ UI.drawAndCaptureStars = function()
 end function
 
 UI.drawScreen = function()
-	clear
 	// Some definitions
 	areaColor = "#000041"
 	leftLimit = self.leftBoundary
