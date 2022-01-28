@@ -197,6 +197,7 @@ WordGame.onLetterMatch = function()
 	if not self.slots.contains("_") then
 		self.printSlots(true)
 		Asteroids.removeAll
+		Asteroids.nextAddTs = time + 3
 		self.onWordMatch
 	else
 		self.printSlots(false)
