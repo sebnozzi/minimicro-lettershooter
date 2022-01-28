@@ -4,6 +4,7 @@ onMM10 = (version.buildDate.indexOf("2021") == 0)
 
 spr = display(4)
 text.color = color.silver
+text.row = 15
 
 wordPool = [
 "break",
@@ -30,6 +31,10 @@ wordPool = [
 bulletSpeed = 500
 asteroidSpeedRange = [100,100]
 starSpeed = [20,40,80]
+
+leftBoundary = 30
+rightBoundary = 960-360
+textColumn = 44
 
 // Main Loop
 
@@ -238,8 +243,8 @@ UI.asteroidImg = null
 UI.charImages = []
 UI.starImages = []
 
-UI.leftBoundary = 120-50
-UI.rightBoundary = 960-320+50
+UI.leftBoundary = leftBoundary
+UI.rightBoundary = rightBoundary
 UI.upBoundary = 600
 UI.downBoundary = 40
 
@@ -320,7 +325,7 @@ UI.printText = function(txt,txtColor)
 	else
 		text.color = color.silver
 	end if
-	text.column = 51; print txt
+	text.column = textColumn; print txt
 end function
 
 // Stars
