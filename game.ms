@@ -38,6 +38,9 @@ leftBoundary = 30
 rightBoundary = 960-360
 textColumn = 44
 
+initialLives = 3
+initialEnergy = 10
+
 // Main Loop
 
 mainLoop = function()	
@@ -84,6 +87,8 @@ WordGame.missed = []
 WordGame.word = ""
 WordGame.guessedWords = []
 WordGame.startTime = time
+WordGame.lives = initialLives
+WordGame.energy = initialEnergy
 
 WordGame.start = function()
 	self.chooseRandomWord
@@ -185,12 +190,41 @@ WordGame.playLetter = function(letter)
 	if matchFound then
 		self.onLetterMatch
 	else
-		Sounds.letterMiss
-		UI.printText "# MISS: " + letter
-		self.missed.push letter
+		self.onLetterMiss(letter)
 	end if	
 	
 	self.updateLetterPool
+end function
+
+WordGame.onLetterMiss = function(letter)
+	Sounds.letterMiss
+	UI.printText "# MISS: " + letter
+	self.missed.push letter
+	self.reduceEnergy	
+end function
+
+WordGame.reduceEnergy = function()
+	self.energy = self.energy - 1
+	if self.energy == 0 then
+		self.reduceLives
+	else
+		UI.printText "Energy: " + self.energy
+	end if
+end function
+
+WordGame.reduceLives = function()
+	self.lives = self.lives - 1
+	if self.lives == 0 then
+		self.gameOver
+	else
+		UI.printText "Lives: " + self.lives
+		self.energy = initialEnergy
+	end if
+end function
+
+WordGame.gameOver = function()
+	UI.printText "GAME OVER"
+	exit
 end function
 
 WordGame.onLetterMatch = function()
@@ -405,6 +439,7 @@ Asteroids.update = function()
 		UI.printText "# CRASH!"
 		Sounds.crash
 		Fighter.animateCrash
+		WordGame.reduceEnergy
 	end if
 	self.moveDown
 	self.addIfDueTime
