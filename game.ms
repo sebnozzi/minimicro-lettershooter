@@ -114,7 +114,11 @@ WordGame.chooseRandomWord = function()
 	self.missed = []
 	self.nonWordLetters = []
 	for letter in self.word 
-		self.slots.push "_"
+		if isAlpha(letter) then
+			self.slots.push "_"
+		else
+			self.slots.push letter	
+		end if		
 	end for
 	self.setNonWordLetters
 	self.updateLetterPool
@@ -143,7 +147,7 @@ WordGame.updateLetterPool = function()
 		// Choose from the letters of the word
 		for c in self.word
 			// Add letter if not already guessed
-			if not self.slots.contains(c) then pool.push c
+			if not self.slots.contains(c) and isAlpha(c) then pool.push c
 		end for
 	end for
 	
@@ -733,6 +737,11 @@ end function
 
 randomLetter = function()
 	return char(rnd * ("Z".code + 1 - "A".code) + "A".code)
+end function
+
+isAlpha = function(ch)
+	chUp = ch.upper
+	return chUp >= "A" and chUp <= "Z"
 end function
 
 // Start program
