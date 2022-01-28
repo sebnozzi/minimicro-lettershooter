@@ -5,7 +5,7 @@ onMM10 = (version.buildDate.indexOf("2021") == 0)
 spr = display(4)
 text.color = color.silver
 
-miniScriptKeywords = [
+wordPool = [
 "break",
 "continue",
 "else",
@@ -30,11 +30,6 @@ miniScriptKeywords = [
 bulletSpeed = 500
 asteroidSpeedRange = [100,100]
 starSpeed = [20,40,80]
-
-wordPool = []
-for keyword in miniScriptKeywords
-	wordPool.push keyword.upper
-end for
 
 // Main Loop
 
@@ -76,7 +71,7 @@ end function
 
 WordGame = {}
 WordGame.nonWordLetterCount = 6
-WordGame.pool = []
+WordGame.letterPool = []
 WordGame.slots = []
 WordGame.missed = []
 WordGame.word = ""
@@ -88,11 +83,19 @@ WordGame.start = function()
 	self.printSlots
 end function
 
+WordGame.wordPool = function()
+	pool = []
+	for word in wordPool
+		pool.push word.upper
+	end for
+	return pool
+end function
+
 WordGame.chooseRandomWord = function()
 	// Choose a not-yet-guessed word
-	self.word = wordPool.any
+	self.word = self.wordPool.any
 	while self.guessedWords.contains(self.word)
-		self.word = wordPool.any
+		self.word = self.wordPool.any
 	end while
 	
 	self.slots = []
@@ -139,11 +142,11 @@ WordGame.updateLetterPool = function()
 		end if
 	end for
 	
-	self.pool = pool
+	self.letterPool = pool
 end function
 
 WordGame.asteroidLetter = function()
-	return self.pool.any
+	return self.letterPool.any
 end function
 
 WordGame.printSlots = function(wordGuessed=false)
