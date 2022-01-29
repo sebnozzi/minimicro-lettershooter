@@ -4,7 +4,6 @@ onMM10 = (version.buildDate.indexOf("2021") == 0)
 
 clear
 
-spr = display(4)
 text.color = color.silver
 text.row = 15
 
@@ -39,7 +38,20 @@ rightBoundary = 960-360
 textColumn = 44
 
 initialLives = 3
-initialEnergy = 10
+initialEnergy = 100
+missReduces = 20
+crashReduces = 20
+
+// Define displays 
+
+spr = display(4)
+
+if display(2).mode != displayMode.pixel then
+	display(2).mode = displayMode.pixel
+end if
+
+overlay = display(2)
+overlay.clear color.clear
 
 // Main Loop
 
@@ -55,6 +67,7 @@ mainLoop = function()
 	Fighter.show
 	
 	WordGame.start
+	UI.drawLivesAndEnergy
 	
 	while true
 		if key.pressed("right") then Fighter.move("right")
@@ -207,13 +220,14 @@ WordGame.onLetterMiss = function(letter)
 	self.reduceEnergy	
 end function
 
-WordGame.reduceEnergy = function()
-	self.energy = self.energy - 1
+WordGame.reduceEnergy = function(reason="miss")
+	amountToReduce = missReduces
+	if reason == "crash" then amountToReduce = crashReduces
+	self.energy = self.energy - amountToReduce
 	if self.energy == 0 then
 		self.reduceLives
-	else
-		UI.printText "Energy: " + self.energy
 	end if
+	UI.drawLivesAndEnergy
 end function
 
 WordGame.reduceLives = function()
@@ -221,13 +235,13 @@ WordGame.reduceLives = function()
 	if self.lives == 0 then
 		self.gameOver
 	else
-		UI.printText "Lives: " + self.lives
 		self.energy = initialEnergy
 	end if
 end function
 
 WordGame.gameOver = function()
 	UI.printText "GAME OVER"
+	UI.drawLivesAndEnergy
 	exit
 end function
 
@@ -281,6 +295,7 @@ end function
 UI = {}
 UI.bulletImg = null
 UI.asteroidImg = null
+UI.heartImg = null
 UI.charImages = []
 UI.starImages = []
 
@@ -295,6 +310,7 @@ UI.drawAndCaptureImages = function()
 	self.drawAndCaptureLetters
 	self.drawAndCaptureAsteroid
 	self.drawAndCaptureStars
+	self.heartImg = file.loadImage("/sys/pics/Heart.png")
 	gfx.clear
 end function
 
@@ -368,6 +384,31 @@ UI.printText = function(txt,txtColor)
 		text.color = color.silver
 	end if
 	text.column = textColumn; print txt
+end function
+
+UI.drawLivesAndEnergy = function()
+	width = rightBoundary-leftBoundary
+	height = 30
+	
+	overlay.fillRect leftBoundary+10,600,width-20,height,color.clear
+	
+	energy = WordGame.energy
+	energyColor = color.green
+	
+	if energy <= 50 then energyColor = color.yellow
+	if energy <= 20 then energyColor = color.orange
+	
+	overlay.fillRect rightBoundary-130,600,100,25,color.black	
+	overlay.fillRect rightBoundary-130,600,WordGame.energy,25,energyColor
+	overlay.drawRect rightBoundary-130,600,100,25,color.black,4
+	overlay.drawRect rightBoundary-130,600,100,25,color.silver,2
+	
+	if WordGame.lives then
+		for lifeNr in range(1,WordGame.lives)
+			x = rightBoundary-140 - lifeNr * 30
+			overlay.drawImage self.heartImg,x,588,30,51	
+		end for
+	end if
 end function
 
 // Stars
