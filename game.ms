@@ -51,11 +51,12 @@ if display(2).mode != displayMode.pixel then
 end if
 
 overlay = display(2)
-overlay.clear color.clear
 
 // Main Loop
 
 mainLoop = function()	
+	UI.showLoadingScreen
+	
 	Sounds.init
 	UI.drawAndCaptureImages
 	UI.drawScreen
@@ -67,6 +68,9 @@ mainLoop = function()
 	Fighter.show
 	
 	WordGame.start
+	
+	UI.hideLoadingScreen
+	
 	UI.drawLivesAndEnergy
 	
 	while true
@@ -318,6 +322,18 @@ UI.rightBoundary = rightBoundary
 UI.upBoundary = 600
 UI.downBoundary = 40
 
+UI.showLoadingScreen = function()
+	overlay.clear color.black
+	msg = "LOADING ..."
+	centerX = 960 / 2 - (msg.len * 20) / 2
+	overlay.print msg,centerX,350,color.silver,"large"
+	wait 0.3
+end function
+
+UI.hideLoadingScreen = function()
+	overlay.clear color.clear
+end function
+
 UI.drawAndCaptureImages = function()
 	gfx.clear
 	self.drawAndCaputureBullet
@@ -426,8 +442,11 @@ UI.drawLivesAndEnergy = function()
 end function
 
 UI.printCenteredMsg = function(msg)
-	overlay.print msg,leftBoundary+200+2,300-2,color.black,"large"
-	overlay.print msg,leftBoundary+200,300,color.silver,"large"
+	textWidth = msg.len * 20
+	areaWidth = rightBoundary - leftBoundary
+	centerX = leftBoundary + areaWidth / 2 - textWidth / 2
+	overlay.print msg,centerX+2,300-2,color.black,"large"
+	overlay.print msg,centerX,300,color.silver,"large"
 end function
 
 // Stars
