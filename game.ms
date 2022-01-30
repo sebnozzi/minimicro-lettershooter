@@ -78,11 +78,16 @@ mainLoop = function()
 			k = key.get
 			if k == " " then Fighter.shoot
 			if k == "q" then exit
+			if not WordGame.playing then
+				if key.pressed("return") then run
+			end if
 		end if
 		
 		// Process objects
 		Bullets.update
-		Asteroids.update
+		if WordGame.playing then
+			Asteroids.update	
+		end if
 		Stars.update
 		Fighter.update
 		
@@ -100,6 +105,7 @@ WordGame.missed = []
 WordGame.word = ""
 WordGame.guessedWords = []
 WordGame.startTime = time
+WordGame.playing = true
 WordGame.lives = initialLives
 WordGame.energy = initialEnergy
 
@@ -240,9 +246,10 @@ WordGame.reduceLives = function()
 end function
 
 WordGame.gameOver = function()
+	self.playing = false
 	UI.drawLivesAndEnergy
 	UI.printCenteredMsg "GAME OVER"
-	exit
+	self.askToPlayAgain
 end function
 
 WordGame.onLetterMatch = function()
@@ -281,13 +288,18 @@ WordGame.encouragement = function()
 end function
 
 WordGame.onGameWon = function()
+	self.playing = false
 	Sounds.gameWon
 	UI.printCenteredMsg "YOU WIN!"
 	
 	UI.printText ""
 	secondsPlayed = floor(time - self.startTime)
 	UI.printText "Won in " + secondsPlayed + " seconds"
-	exit
+	self.askToPlayAgain
+end function
+
+WordGame.askToPlayAgain = function()
+	overlay.print "Press ENTER to play again",140,250,color.silver
 end function
 
 // UI Manager
