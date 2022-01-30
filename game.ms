@@ -247,6 +247,7 @@ end function
 
 WordGame.gameOver = function()
 	self.playing = false
+	Asteroids.removeAll
 	UI.drawLivesAndEnergy
 	UI.printCenteredMsg "GAME OVER"
 	self.askToPlayAgain
@@ -290,6 +291,7 @@ end function
 WordGame.onGameWon = function()
 	self.playing = false
 	Sounds.gameWon
+	Asteroids.removeAll
 	UI.printCenteredMsg "YOU WIN!"
 	
 	UI.printText ""
