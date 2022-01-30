@@ -240,8 +240,8 @@ WordGame.reduceLives = function()
 end function
 
 WordGame.gameOver = function()
-	UI.printText "GAME OVER"
 	UI.drawLivesAndEnergy
+	UI.printCenteredMsg "GAME OVER"
 	exit
 end function
 
@@ -282,11 +282,11 @@ end function
 
 WordGame.onGameWon = function()
 	Sounds.gameWon
-	UI.printText self.encouragement
-	UI.printText "GAME WON!"
+	UI.printCenteredMsg "YOU WIN!"
+	
 	UI.printText ""
 	secondsPlayed = floor(time - self.startTime)
-	UI.printText "(in " + secondsPlayed + " seconds)"
+	UI.printText "Won in " + secondsPlayed + " seconds"
 	exit
 end function
 
@@ -409,6 +409,11 @@ UI.drawLivesAndEnergy = function()
 			overlay.drawImage self.heartImg,x,588,30,51	
 		end for
 	end if
+end function
+
+UI.printCenteredMsg = function(msg)
+	overlay.print msg,leftBoundary+200+2,300-2,color.black,"large"
+	overlay.print msg,leftBoundary+200,300,color.silver,"large"
 end function
 
 // Stars
