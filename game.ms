@@ -74,10 +74,7 @@ mainLoop = function()
 	UI.drawLivesAndEnergy
 	
 	while true
-		if key.pressed("right") then Fighter.move("right")
-		if key.pressed("left") then Fighter.move("left")
-		if key.pressed("up") then Fighter.move("up")
-		if key.pressed("down") then Fighter.move("down")
+		
 		if key.available then 
 			k = key.get
 			if k == " " then Fighter.shoot
@@ -85,7 +82,15 @@ mainLoop = function()
 			if not WordGame.playing then
 				if key.pressed("return") then run
 			end if
+			if k == "p" then 
+				WordGame.togglePause
+			end if
 		end if
+		
+		if key.pressed("right") then Fighter.move("right")
+		if key.pressed("left") then Fighter.move("left")
+		if key.pressed("up") then Fighter.move("up")
+		if key.pressed("down") then Fighter.move("down")
 		
 		// Process objects
 		Bullets.update
@@ -110,12 +115,27 @@ WordGame.word = ""
 WordGame.guessedWords = []
 WordGame.startTime = time
 WordGame.playing = true
+WordGame.paused = false
 WordGame.lives = initialLives
 WordGame.energy = initialEnergy
 
 WordGame.start = function()
 	self.chooseRandomWord
 	self.printSlots
+end function
+
+WordGame.togglePause = function()
+	if self.paused then
+		self.paused = false
+		UI.printCenteredMsg ""
+	else
+		self.paused = true
+		UI.printCenteredMsg "Paused"
+	end if
+end function
+
+gamePaused = function()
+	return WordGame.paused
 end function
 
 WordGame.wordPool = function()
@@ -442,6 +462,7 @@ UI.drawLivesAndEnergy = function()
 end function
 
 UI.printCenteredMsg = function(msg)
+	self.clearCenteredMsgArea
 	textWidth = msg.len * 20
 	areaWidth = rightBoundary - leftBoundary
 	centerX = leftBoundary + areaWidth / 2 - textWidth / 2
@@ -449,9 +470,17 @@ UI.printCenteredMsg = function(msg)
 	overlay.print msg,centerX,300,color.silver,"large"
 end function
 
+UI.clearCenteredMsgArea = function()
+	textHeight = 32
+	y = 300
+	areaWidth = rightBoundary - leftBoundary
+	overlay.fillRect leftBoundary,y,areaWidth,textHeight,color.clear
+end function
+
 // Stars
 
 Stars = {}
+Stars.paused = false
 Stars.layersA = []
 Stars.layersB = []
 Stars.lastUpdateTs = 0
@@ -483,7 +512,13 @@ Stars.show = function()
 	end for
 end function	
 Stars.update = function()
-	deltaTs = time - self.lastUpdateTs
+	if not gamePaused then
+		deltaTs = time - self.lastUpdateTs
+		self.updateLayers deltaTs
+	end if
+	self.lastUpdateTs = time
+end function
+Stars.updateLayers = function(deltaTs)
 	for layerIdx in self.layerRange
 		speed = starSpeed[layerIdx]
 		height = UI.starImages[layerIdx].height
@@ -498,7 +533,6 @@ Stars.update = function()
 			layerB.y = 640 + height / 2
 		end if
 	end for	
-	self.lastUpdateTs = time
 end function
 
 // Asteroids
@@ -515,17 +549,20 @@ color.rgb(100,255,100),
 // violet-like
 "#FF8CFF"]
 Asteroids.lastUpdateTs = 0
+Asteroids.paused = false
 
 Asteroids.update = function()
-	a = self.processHit(Fighter)
-	if a then 
-		UI.printText "# CRASH!"
-		Sounds.crash
-		Fighter.animateCrash
-		WordGame.reduceEnergy
+	if not gamePaused then
+		a = self.processHit(Fighter)
+		if a then 
+			UI.printText "# CRASH!"
+			Sounds.crash
+			Fighter.animateCrash
+			WordGame.reduceEnergy
+		end if
+		self.moveDown
+		self.addIfDueTime
 	end if
-	self.moveDown
-	self.addIfDueTime
 	self.lastUpdateTs = time
 end function
 
@@ -700,11 +737,13 @@ Fighter.show = function()
 end function
 
 Fighter.move = function(dir)
-	if dir == "right" then self.x = self.x + 10
-	if dir == "left" then self.x = self.x - 10
-	if dir == "up" then self.y = self.y + 10
-	if dir == "down" then self.y = self.y - 10
-	self.adjustPosition
+	if not gamePaused then
+		if dir == "right" then self.x = self.x + 10
+		if dir == "left" then self.x = self.x - 10
+		if dir == "up" then self.y = self.y + 10
+		if dir == "down" then self.y = self.y - 10
+		self.adjustPosition
+	end if
 end function
 
 Fighter.adjustPosition = function()
@@ -715,8 +754,10 @@ Fighter.adjustPosition = function()
 end function
 
 Fighter.shoot = function()
-	Sounds.shoot
-	Bullets.addBullet self.x, self.y + 70
+	if not gamePaused then
+		Sounds.shoot
+		Bullets.addBullet self.x, self.y + 70
+	end if
 end function
 
 Fighter.animateCrash = function()
@@ -724,10 +765,15 @@ Fighter.animateCrash = function()
 end function
 
 Fighter.update = function()
+	if gamePaused and self.crashAnimationEnd > 0 then
+		self.animateCrash
+	end if
+	
 	if time < self.crashAnimationEnd then
 		self.tint = color.pink
 	else
 		self.tint = color.white
+		self.crashAnimationEnd = 0
 	end if
 end function
 
@@ -745,8 +791,15 @@ Bullets.addBullet = function(bulletX, bulletY)
 end function
 
 Bullets.update = function()
+	if not gamePaused then
+		deltaTs = time - self.lastUpdateTs
+		self.updateOnScreenBullets deltaTs
+	end if
+	self.lastUpdateTs = time
+end function
+
+Bullets.updateOnScreenBullets = function(deltaTs)
 	onScreen = []
-	deltaTs = time - self.lastUpdateTs
 	for bullet in self.bullets
 		if not bullet.hit then
 			bullet.y = bullet.y + deltaTs * bulletSpeed
@@ -767,7 +820,6 @@ Bullets.update = function()
 		end if
 	end for
 	self.bullets = onScreen
-	self.lastUpdateTs = time
 end function
 
 // Sounds
