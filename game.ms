@@ -1,6 +1,5 @@
 import "listUtil"
 
-onMM10 = (version.buildDate.indexOf("2021") == 0)
 
 clear
 
@@ -724,7 +723,7 @@ Fighter.init = function()
 	self.image = fighterImg
 	self.localBounds = boundsFromImg(fighterImg)
 	self.scale = 0.5
-	if not onMM10 then self.rotation = 90
+	self.rotation = 90
 	self.width = self.image.width * self.scale
 	self.leftBoundary = UI.leftBoundary + self.width / 2 + 20
 	self.rightBoundary = UI.rightBoundary - self.width / 2 - 20
