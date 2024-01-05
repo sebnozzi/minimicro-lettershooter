@@ -1,4 +1,18 @@
 {
   "pageTitle": "Mini Micro - LetterShooter (Web Runner)",
-  "mainFile": "game.ms"
+  "mainFile": "game.ms",
+  "sysDisk": {
+    "useOnly": [
+      
+      "/sys/pics/Heart.png",
+      "/sys/pics/Fighter.png",
+
+      "/sys/sounds/airburst.wav",
+      "/sys/sounds/airburst.wav",
+      "/sys/sounds/hit.wav",
+      "/sys/sounds/ting.wav",
+      "/sys/sounds/bling.wav",
+      "/sys/sounds/fanfare.wav"
+    ]
+  }
 }
